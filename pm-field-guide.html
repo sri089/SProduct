@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Field Guide to PM Species — AI/ML Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #12201A;
+    --bg-deep: #0C1712;
+    --paper: #F3EDDA;
+    --paper-dim: #E9E0C6;
+    --ink: #1E2621;
+    --ink-soft: #55605A;
+    --line: rgba(30,38,33,0.16);
+    --paper-line: rgba(243,237,218,0.10);
+    --product: #C68A2C;
+    --product-soft: rgba(198,138,44,0.14);
+    --program: #2E7A6A;
+    --program-soft: rgba(46,122,106,0.16);
+    --delivery: #A03E63;
+    --delivery-soft: rgba(160,62,99,0.15);
+    --shadow: 0 10px 30px rgba(0,0,0,0.25);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    background-image:
+      linear-gradient(var(--paper-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--paper-line) 1px, transparent 1px);
+    background-size: 34px 34px;
+    color:var(--paper);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{ font-family:'Fraunces', serif; font-weight:600; letter-spacing:-0.01em; }
+  .mono{ font-family:'IBM Plex Mono', monospace; }
+  a{ color:inherit; }
+  .wrap{ max-width:1120px; margin:0 auto; padding:0 28px; }
+
+  /* NAV */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(12,23,18,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom:1px solid rgba(243,237,218,0.14);
+  }
+  .navrow{ display:flex; align-items:center; justify-content:space-between; padding:14px 28px; max-width:1120px; margin:0 auto; gap:16px; flex-wrap:wrap; }
+  .brand{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--paper-dim); }
+  .brand b{ color:var(--paper); }
+  .navlinks{ display:flex; gap:20px; list-style:none; margin:0; padding:0; }
+  .navlinks a{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.06em;
+    text-decoration:none; color:rgba(243,237,218,0.55); text-transform:uppercase;
+    padding:6px 0; border-bottom:2px solid transparent; transition:color .2s, border-color .2s;
+  }
+  .navlinks a:hover, .navlinks a.active{ color:var(--paper); border-color:var(--product); }
+  .navtoggle{ display:none; background:none; border:1px solid rgba(243,237,218,0.3); color:var(--paper); border-radius:6px; padding:6px 10px; font-family:'IBM Plex Mono',monospace; font-size:11px; }
+  .nav-level{ display:flex; gap:6px; }
+  .nav-level-btn{ font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; padding:5px 9px; border-radius:6px; border:1px solid rgba(243,237,218,0.22); background:transparent; color:rgba(243,237,218,0.55); cursor:pointer; }
+  .nav-level-btn.active{ background:var(--product); border-color:var(--product); color:var(--bg-deep); font-weight:600; }
+
+  /* HERO */
+  .hero{ padding:80px 0 20px; position:relative; }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.18em; text-transform:uppercase;
+    color: var(--product); margin-bottom:18px; display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{ content:''; width:28px; height:1px; background:var(--product); display:inline-block; }
+  .hero h1{ font-size:clamp(34px, 5.4vw, 60px); line-height:1.04; margin:0 0 22px; max-width:820px; color:var(--paper); }
+  .hero h1 em{ font-style:italic; color:var(--paper-dim); }
+  .hero p.lede{ font-size:18px; line-height:1.6; color:var(--paper-dim); max-width:640px; margin:0 0 30px; }
+  .specimen-strip{ display:flex; gap:14px; flex-wrap:wrap; margin-bottom:40px; }
+  .chip{
+    display:flex; align-items:center; gap:9px; background:rgba(243,237,218,0.06);
+    border:1px solid rgba(243,237,218,0.16); border-radius:999px; padding:9px 16px 9px 12px;
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px;
+  }
+  .dot{ width:9px; height:9px; border-radius:50%; flex:none; }
+  .dot.product{ background:var(--product); } .dot.program{ background:var(--program); } .dot.delivery{ background:var(--delivery); }
+
+  /* LEVEL SWITCHER (main, in-page) */
+  .level-panel{
+    background:var(--bg-deep); border:1px solid rgba(243,237,218,0.16); border-radius:16px;
+    padding:22px 24px; margin-bottom:10px;
+  }
+  .level-panel-top{ display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+  .level-panel-top .mono{ font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:rgba(243,237,218,0.5); }
+  .level-switcher{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .level-btn{
+    font-family:'IBM Plex Mono',monospace; padding:10px 18px; border-radius:999px; border:1px solid rgba(243,237,218,0.25);
+    background:transparent; color:var(--paper-dim); cursor:pointer; font-size:12.5px; text-transform:uppercase; letter-spacing:.05em;
+    transition:background .2s,color .2s,border-color .2s;
+  }
+  .level-btn:hover{ border-color:rgba(243,237,218,0.5); }
+  .level-btn.active{ background:var(--product); color:var(--bg-deep); border-color:var(--product); font-weight:600; }
+  .level-desc{ font-size:14px; color:var(--paper-dim); font-style:italic; margin:0; line-height:1.5; }
+
+  /* SECTION SHELL */
+  section{ padding:70px 0; border-top:1px solid rgba(243,237,218,0.10); }
+  .plate{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.18em; text-transform:uppercase; color:rgba(243,237,218,0.45); margin-bottom:10px; }
+  .sec-title{ font-size:clamp(26px,3.4vw,38px); margin:0 0 14px; color:var(--paper); }
+  .sec-sub{ color:var(--paper-dim); max-width:660px; line-height:1.6; margin:0 0 40px; font-size:16px; }
+
+  /* SPECIMEN CARDS */
+  .cards{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .card{
+    background:var(--paper); color:var(--ink); border-radius:14px; padding:28px 26px 30px;
+    box-shadow:var(--shadow); border-top:6px solid var(--role-color);
+    display:flex; flex-direction:column; gap:16px;
+  }
+  .card[data-role="product"]{ --role-color: var(--product); }
+  .card[data-role="program"]{ --role-color: var(--program); }
+  .card[data-role="delivery"]{ --role-color: var(--delivery); }
+  .card-head{ display:flex; align-items:center; gap:12px; }
+  .icon{ width:38px; height:38px; flex:none; color:var(--role-color); }
+  .card-head h3{ margin:0; font-size:21px; color:var(--ink); }
+  .card-head .role-tag{ font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--role-color); }
+  .def{ font-size:15.5px; line-height:1.55; color:var(--ink); font-weight:500; min-height:44px; }
+  .card h4{ margin:0 0 6px; font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.09em; color:var(--ink-soft); }
+  .field-marks{ margin:0; padding-left:18px; font-size:14px; line-height:1.6; color:var(--ink); }
+  .field-marks li{ margin-bottom:3px; }
+  .call{ background:var(--paper-dim); border-left:3px solid var(--role-color); padding:10px 13px; border-radius:0 8px 8px 0; font-style:italic; font-size:14px; color:var(--ink); line-height:1.5;}
+  .sighting{ font-size:14.5px; line-height:1.6; color:var(--ink); min-height:66px; }
+  .owns{ display:flex; flex-wrap:wrap; gap:7px; margin-top:2px; }
+  .owns span{ background:var(--role-color); color:var(--paper); font-family:'IBM Plex Mono',monospace; font-size:11px; padding:4px 9px; border-radius:999px; }
+
+  /* SCENARIO SIMULATOR */
+  .scenario-picker{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:34px; }
+  .scenario-btn{
+    background:rgba(243,237,218,0.06); border:1px solid rgba(243,237,218,0.2); color:var(--paper);
+    padding:11px 17px; border-radius:10px; font-family:'Inter',sans-serif; font-size:13.5px; cursor:pointer;
+    text-align:left; transition:background .2s, border-color .2s; line-height:1.4; max-width:230px;
+  }
+  .scenario-btn:hover{ background:rgba(243,237,218,0.12); }
+  .scenario-btn.active{ border-color:var(--product); background:rgba(198,138,44,0.16); }
+  .scenario-panel-wrap{ background:var(--bg-deep); border:1px solid rgba(243,237,218,0.14); border-radius:16px; padding:8px; }
+  .scenario-header{ padding:22px 24px 6px; }
+  .scenario-header .mono{ font-size:11.5px; text-transform:uppercase; letter-spacing:0.1em; color:rgba(243,237,218,0.5); }
+  .scenario-header h4{ margin:6px 0 0; font-family:'Fraunces',serif; font-weight:500; font-size:21px; color:var(--paper); }
+  .desks{ display:grid; grid-template-columns:repeat(3,1fr); gap:2px; margin-top:14px; }
+  .desk{ background:var(--paper); color:var(--ink); padding:20px 20px 24px; min-height:150px; }
+  .desk:first-child{ border-radius:10px 0 0 10px; }
+  .desk:last-child{ border-radius:0 10px 10px 0; }
+  .desk-role{ display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+  .desk-role .dot{ width:10px; height:10px; }
+  .desk-role span{ font-family:'IBM Plex Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-soft); }
+  .desk p{ margin:0; font-size:14.5px; line-height:1.6; }
+
+  /* FAILURE MODES */
+  .fail-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  .fail-card{ border:1px solid rgba(243,237,218,0.16); border-radius:14px; padding:22px 22px 24px; border-top:4px solid var(--fc); background:rgba(243,237,218,0.03); }
+  .fail-card[data-role="product"]{ --fc:var(--product); }
+  .fail-card[data-role="program"]{ --fc:var(--program); }
+  .fail-card[data-role="delivery"]{ --fc:var(--delivery); }
+  .fail-card h4{ margin:0 0 14px; font-family:'Fraunces',serif; font-size:18px; font-weight:600; color:var(--paper); }
+  .fail-card ul{ margin:0; padding-left:18px; }
+  .fail-card li{ font-size:14px; line-height:1.6; color:var(--paper-dim); margin-bottom:10px; }
+  .fail-card li b{ color:var(--paper); font-weight:600; }
+
+  /* DECODER */
+  .decoder-controls{ display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:28px; }
+  #search{
+    flex:1; min-width:220px; background:rgba(243,237,218,0.07); border:1px solid rgba(243,237,218,0.22);
+    color:var(--paper); padding:12px 16px; border-radius:10px; font-family:'Inter',sans-serif; font-size:14.5px;
+  }
+  #search::placeholder{ color:rgba(243,237,218,0.4); }
+  .filter-chips{ display:flex; gap:8px; flex-wrap:wrap; }
+  .fchip{
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em;
+    padding:8px 13px; border-radius:999px; border:1px solid rgba(243,237,218,0.22); background:transparent;
+    color:rgba(243,237,218,0.7); cursor:pointer;
+  }
+  .fchip.active{ color:var(--bg-deep); font-weight:600; }
+  .fchip[data-f="all"].active{ background:var(--paper); border-color:var(--paper); }
+  .fchip[data-f="product"].active{ background:var(--product); border-color:var(--product); }
+  .fchip[data-f="program"].active{ background:var(--program); border-color:var(--program); }
+  .fchip[data-f="delivery"].active{ background:var(--delivery); border-color:var(--delivery); }
+  .fchip[data-f="shared"].active{ background:#8f8a76; border-color:#8f8a76; }
+  .term-count{ font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:rgba(243,237,218,0.4); margin:-22px 0 22px; }
+  .term-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+  .term-card{
+    background:var(--paper); color:var(--ink); border-radius:12px; padding:18px 20px; position:relative;
+    border-left:5px solid var(--tc);
+  }
+  .term-card[data-owner="product"]{ --tc: var(--product); }
+  .term-card[data-owner="program"]{ --tc: var(--program); }
+  .term-card[data-owner="delivery"]{ --tc: var(--delivery); }
+  .term-card[data-owner="shared"]{ --tc: #8f8a76; }
+  .term-top{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:6px; }
+  .term-top h5{ margin:0; font-family:'Fraunces',serif; font-size:17px; font-weight:600; }
+  .owner-tag{ font-family:'IBM Plex Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--tc); white-space:nowrap; }
+  .term-meaning{ font-size:14px; line-height:1.55; margin:0 0 8px; color:var(--ink); }
+  .term-expert{ font-size:13px; line-height:1.5; color:var(--tc); margin:0 0 8px; font-weight:600; }
+  .term-example{ font-size:13px; line-height:1.5; color:var(--ink-soft); font-style:italic; }
+  .no-results{ color:rgba(243,237,218,0.5); font-family:'IBM Plex Mono',monospace; font-size:13px; padding:20px 4px; display:none; }
+
+  /* GLOSSARY */
+  .glossary-letter{
+    font-family:'Fraunces',serif; font-weight:600; font-size:15px; color:var(--product);
+    margin:34px 0 4px; padding-bottom:6px; border-bottom:1px solid rgba(243,237,218,0.16);
+  }
+  .glossary-letter:first-child{ margin-top:0; }
+  .glossary-entry{ padding:18px 0; border-bottom:1px solid rgba(243,237,218,0.10); }
+  .glossary-top{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+  .glossary-top h5{ margin:0; font-family:'Fraunces',serif; font-size:18px; font-weight:600; color:var(--paper); }
+  .glossary-owner{ font-family:'IBM Plex Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--gc); }
+  .glossary-entry[data-owner="product"]{ --gc:var(--product); } .glossary-entry[data-owner="program"]{ --gc:var(--program); }
+  .glossary-entry[data-owner="delivery"]{ --gc:var(--delivery); } .glossary-entry[data-owner="shared"]{ --gc:#c7c2a8; }
+  .glossary-defs{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  .glossary-def-label{ font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:0.08em; color:rgba(243,237,218,0.4); margin-bottom:4px; }
+  .glossary-def-text{ font-size:14px; line-height:1.55; color:var(--paper-dim); margin:0; }
+  .glossary-def-text.technical{ color:var(--paper); }
+  @media (max-width:700px){ .glossary-defs{ grid-template-columns:1fr; } }
+
+  /* COMPARE TABLE */
+  .compare-wrap{ overflow-x:auto; border-radius:14px; border:1px solid rgba(243,237,218,0.14); }
+  table{ width:100%; border-collapse:collapse; min-width:780px; background:var(--bg-deep); }
+  thead th{ text-align:left; padding:18px 20px; font-family:'Fraunces',serif; font-size:17px; font-weight:600; border-bottom:2px solid rgba(243,237,218,0.16); }
+  thead th:first-child{ color:rgba(243,237,218,0.5); font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.08em; font-weight:500; }
+  thead th.product{ color:var(--product); } thead th.program{ color:var(--program); } thead th.delivery{ color:var(--delivery); }
+  tbody td{ padding:16px 20px; font-size:14px; line-height:1.55; color:var(--paper-dim); border-bottom:1px solid rgba(243,237,218,0.08); vertical-align:top; }
+  tbody td:first-child{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:rgba(243,237,218,0.55); text-transform:uppercase; letter-spacing:0.04em; white-space:nowrap; }
+  tbody tr:last-child td{ border-bottom:none; }
+
+  footer{ padding:50px 0 70px; text-align:center; }
+  .mnemonic{ font-family:'Fraunces',serif; font-style:italic; font-size:19px; color:var(--paper-dim); max-width:580px; margin:0 auto 10px; line-height:1.5; }
+  .foot-fine{ font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:rgba(243,237,218,0.35); }
+
+  @media (max-width:860px){
+    .cards{ grid-template-columns:1fr; }
+    .term-grid{ grid-template-columns:1fr; }
+    .desks{ grid-template-columns:1fr; }
+    .fail-grid{ grid-template-columns:1fr; }
+    .desk{ border-radius:0 !important; }
+    .desk:first-child{ border-radius:10px 10px 0 0 !important; }
+    .desk:last-child{ border-radius:0 0 10px 10px !important; }
+    .navlinks{ display:none; position:absolute; top:100%; left:0; right:0; background:var(--bg-deep); flex-direction:column; padding:14px 28px; border-bottom:1px solid rgba(243,237,218,0.14); }
+    .navlinks.open{ display:flex; }
+    .navtoggle{ display:block; }
+    .nav-level{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="navrow">
+    <div class="brand"><b>Field Guide</b> · PM Species, AI/ML Edition</div>
+    <div class="nav-level" id="navLevel"></div>
+    <button class="navtoggle" id="navtoggle" aria-expanded="false" aria-controls="navlinks">Menu</button>
+    <ul class="navlinks" id="navlinks">
+      <li><a href="#top">Overview</a></li>
+      <li><a href="#meet">The Three</a></li>
+      <li><a href="#scenario">Live Scenario</a></li>
+      <li><a href="#failure">Failure Modes</a></li>
+      <li><a href="#decoder">Decoder</a></li>
+      <li><a href="#compare">Compare</a></li>
+      <li><a href="#glossary">Glossary</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="eyebrow">A field guide, at your reading level</div>
+    <h1>Product, Program, or Delivery? <em>Three roles that get mixed up on every AI team.</em></h1>
+    <p class="lede">Same meeting, three job titles, three completely different jobs. This guide tells them apart using real AI/ML situations — model launches, training budgets, eval failures — instead of org-chart theory.</p>
+    <div class="specimen-strip">
+      <div class="chip"><span class="dot product"></span>Product — decides <b>what & why</b></div>
+      <div class="chip"><span class="dot program"></span>Program — aligns <b>which teams, by when</b></div>
+      <div class="chip"><span class="dot delivery"></span>Delivery — ships <b>this sprint's work</b></div>
+    </div>
+
+    <div class="level-panel">
+      <div class="level-panel-top">
+        <span class="mono">Choose your depth</span>
+        <span class="mono" id="levelCount"></span>
+      </div>
+      <div class="level-switcher" id="levelSwitcher"></div>
+      <p class="level-desc" id="levelDesc"></p>
+    </div>
+  </div>
+</header>
+
+<section id="meet" style="padding-top:50px;">
+  <div class="wrap">
+    <div class="plate">Plate I</div>
+    <h2 class="sec-title">Meet the three</h2>
+    <p class="sec-sub">In a small AI startup, one person often does all three badly. In a large one, they're three separate people who need each other constantly. Here's how to spot each in the wild — the text below changes with the depth you picked above.</p>
+
+    <div class="cards">
+      <!-- PRODUCT -->
+      <article class="card" data-role="product">
+        <div class="card-head">
+          <svg class="icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="20" cy="20" r="15"/><path d="M20 8 L23 19 L20 20 L17 19 Z" fill="currentColor" stroke="none"/><circle cx="20" cy="20" r="2.3" fill="currentColor" stroke="none"/></svg>
+          <div><h3>Product Manager</h3><div class="role-tag">Owns the "what & why"</div></div>
+        </div>
+        <p class="def" id="def-product"></p>
+        <div>
+          <h4>Field marks</h4>
+          <ul class="field-marks">
+            <li>Talks in user problems, not model architecture</li>
+            <li>Has a metric they check every Monday</li>
+            <li>Can explain why a feature was <em>cut</em>, not just what shipped</li>
+          </ul>
+        </div>
+        <div class="call">"What's the user problem we're actually solving here — not the coolest model we could ship?"</div>
+        <div>
+          <h4>AI/ML sighting</h4>
+          <p class="sighting" id="sighting-product"></p>
+        </div>
+        <div>
+          <h4>Owns</h4>
+          <div class="owns"><span>PRD</span><span>Roadmap</span><span>Success metric</span><span>Go / no-go</span></div>
+        </div>
+      </article>
+
+      <!-- PROGRAM -->
+      <article class="card" data-role="program">
+        <div class="card-head">
+          <svg class="icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="13" cy="14" r="6"/><circle cx="27" cy="14" r="6"/><circle cx="20" cy="27" r="6"/><path d="M17 18 L23 18 M15.5 19 L18.5 23 M24.5 19 L21.5 23"/></svg>
+          <div><h3>Program Manager</h3><div class="role-tag">Owns "which teams, by when"</div></div>
+        </div>
+        <p class="def" id="def-program"></p>
+        <div>
+          <h4>Field marks</h4>
+          <ul class="field-marks">
+            <li>Knows who's blocked on whom, across teams, this week</li>
+            <li>Owns a timeline nobody else can see the whole of</li>
+            <li>Sends the status update leadership actually reads</li>
+          </ul>
+        </div>
+        <div class="call">"Data labeling slips a week, eval slips a week, launch slips a week — unless someone moves."</div>
+        <div>
+          <h4>AI/ML sighting</h4>
+          <p class="sighting" id="sighting-program"></p>
+        </div>
+        <div>
+          <h4>Owns</h4>
+          <div class="owns"><span>RACI</span><span>Dependency map</span><span>Risk log</span><span>Status deck</span></div>
+        </div>
+      </article>
+
+      <!-- DELIVERY -->
+      <article class="card" data-role="delivery">
+        <div class="card-head">
+          <svg class="icon" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="7" width="22" height="27" rx="2.5"/><path d="M14 15 L18 19 L26 11 M14 24 L17 27 M14 24 L17 24"/></svg>
+          <div><h3>Delivery Manager</h3><div class="role-tag">Owns "this sprint, this team"</div></div>
+        </div>
+        <p class="def" id="def-delivery"></p>
+        <div>
+          <h4>Field marks</h4>
+          <ul class="field-marks">
+            <li>Runs standup and actually removes what gets raised in it</li>
+            <li>Notices a bottleneck on day two, not day ten</li>
+            <li>Can tell you exactly what's in this sprint vs. next</li>
+          </ul>
+        </div>
+        <div class="call">"The eval run's been queued for three days — that's the real blocker, not the code."</div>
+        <div>
+          <h4>AI/ML sighting</h4>
+          <p class="sighting" id="sighting-delivery"></p>
+        </div>
+        <div>
+          <h4>Owns</h4>
+          <div class="owns"><span>Sprint board</span><span>Burndown</span><span>Standup</span><span>Retro</span></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="scenario">
+  <div class="wrap">
+    <div class="plate">Plate II</div>
+    <h2 class="sec-title">Same incident, three desks</h2>
+    <p class="sec-sub">Pick a situation that hits an AI/ML team. Watch what each role actually does about it — same Tuesday, three different jobs. Answers below also change with your chosen depth.</p>
+
+    <div class="scenario-picker" id="scenarioPicker"></div>
+    <div class="scenario-panel-wrap">
+      <div class="scenario-header">
+        <span class="mono">Situation</span>
+        <h4 id="scenarioTitle"></h4>
+      </div>
+      <div class="desks" id="desks"></div>
+    </div>
+  </div>
+</section>
+
+<section id="failure">
+  <div class="wrap">
+    <div class="plate">Plate III</div>
+    <h2 class="sec-title">Where each role goes wrong</h2>
+    <p class="sec-sub">Every role has a signature way of failing. Recognizing it early is half the job of fixing it.</p>
+    <div class="fail-grid">
+      <div class="fail-card" data-role="product">
+        <h4>Product Manager</h4>
+        <ul>
+          <li><b>Feature-chasing:</b> ships whatever's trendy (a chatbot, an agent) with no metric proving it helps users.</li>
+          <li><b>No opinion on "no":</b> can't say why something was cut, only that it was.</li>
+          <li><b>Vanity metrics:</b> celebrates model accuracy going up while user complaints go up too.</li>
+        </ul>
+      </div>
+      <div class="fail-card" data-role="program">
+        <h4>Program Manager</h4>
+        <ul>
+          <li><b>Status theater:</b> the deck says "green" the week before everything turns out to be blocked.</li>
+          <li><b>Late escalation:</b> only surfaces a risk after it's already caused a slip.</li>
+          <li><b>Process for its own sake:</b> adds meetings and trackers that no team actually needed.</li>
+        </ul>
+      </div>
+      <div class="fail-card" data-role="delivery">
+        <h4>Delivery Manager</h4>
+        <ul>
+          <li><b>Over-committing:</b> says yes to every ask, then the whole sprint slips at once.</li>
+          <li><b>Busy, not done:</b> the board looks full of activity but nothing actually ships.</li>
+          <li><b>Blocker-blind:</b> the same task sits "in progress" for a week before anyone asks why.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="decoder">
+  <div class="wrap">
+    <div class="plate">Plate IV</div>
+    <h2 class="sec-title">Jargon decoder</h2>
+    <p class="sec-sub">The actual words you'll hear in AI/ML planning meetings — both the process jargon (RACI, burndown) and the core AI/ML concepts underneath it (tokens, embeddings, RLHF) — translated, with who usually owns each one. Switch to Expert to see the extra technical detail practitioners add.</p>
+
+    <div class="decoder-controls">
+      <input id="search" type="text" placeholder="Search a term, e.g. 'burndown' or 'RACI'…">
+      <div class="filter-chips">
+        <button class="fchip active" data-f="all">All</button>
+        <button class="fchip" data-f="product">Product</button>
+        <button class="fchip" data-f="program">Program</button>
+        <button class="fchip" data-f="delivery">Delivery</button>
+        <button class="fchip" data-f="shared">Shared</button>
+      </div>
+    </div>
+    <p class="term-count" id="termCount"></p>
+    <div class="term-grid" id="termGrid"></div>
+    <p class="no-results" id="noResults">No terms match that search.</p>
+  </div>
+</section>
+
+<section id="compare">
+  <div class="wrap">
+    <div class="plate">Plate V</div>
+    <h2 class="sec-title">Tell them apart, fast</h2>
+    <p class="sec-sub">When you're not sure who owns a decision, check which row it falls under.</p>
+    <div class="compare-wrap">
+      <table>
+        <thead>
+          <tr><th></th><th class="product">Product</th><th class="program">Program</th><th class="delivery">Delivery</th></tr>
+        </thead>
+        <tbody id="compareBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="glossary">
+  <div class="wrap">
+    <div class="plate">Plate VI</div>
+    <h2 class="sec-title">Glossary</h2>
+    <p class="sec-sub">Every term in this guide, A–Z, with the layman definition and the technical definition shown side by side — no toggling required.</p>
+
+    <div class="decoder-controls">
+      <input id="glossarySearch" type="text" placeholder="Search the glossary…">
+      <div class="filter-chips" id="glossaryChips">
+        <button class="fchip active" data-f="all">All</button>
+        <button class="fchip" data-f="product">Product</button>
+        <button class="fchip" data-f="program">Program</button>
+        <button class="fchip" data-f="delivery">Delivery</button>
+        <button class="fchip" data-f="shared">Shared</button>
+      </div>
+    </div>
+    <p class="term-count" id="glossaryCount"></p>
+    <div id="glossaryList"></div>
+    <p class="no-results" id="glossaryNoResults">No terms match that search.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="mnemonic">Product decides <b>what's worth building.</b> Program keeps <b>every team pointed at the same date.</b> Delivery makes sure <b>this week's work actually gets done.</b></p>
+    <p class="foot-fine">Field Guide to PM Species — AI/ML Edition</p>
+  </div>
+</footer>
+
+<script>
+  /* ============ LEVEL SYSTEM ============ */
+  const levelOrder = ['layman','beginner','intermediate','expert'];
+  const levelMeta = {
+    layman:       { label:'Layman',       desc:'No jargon at all — explained like you\u2019ve never worked on a software team.' },
+    beginner:     { label:'Beginner',     desc:'Plain language, with the basic terms you\u2019ll actually start hearing in meetings.' },
+    intermediate: { label:'Intermediate', desc:'How people already on the team talk about it, day to day.' },
+    expert:       { label:'Expert',       desc:'Practitioner language — metrics, tools, and the technical detail behind each decision.' }
+  };
+  let currentLevel = 'beginner';
+
+  /* ============ ROLE CARD CONTENT ============ */
+  const roleContent = {
+    product: {
+      layman:       { def:'Decides what to build, and whether people actually want it.', sighting:'Two versions of a chatbot exist: one smarter but slower, one dumber but instant. The Product Manager watches what real people do — most leave if it\u2019s slow — so they ship the fast one.' },
+      beginner:     { def:'Figures out which problem is worth solving, for which users, and whether the feature actually helped once it shipped.', sighting:'When choosing between a bigger, more accurate model and a smaller, faster one, the PM looks at real usage data — like how many people abandon a slow chat — instead of trusting benchmark scores alone.' },
+      intermediate: { def:'Decides which problem is worth solving, for whom, and whether the model or feature actually made things better once it\u2019s out.', sighting:'Two model options are ready: a big, slow, more accurate one, and a small, fast, "good enough" one. The Product Manager looks at drop-off data, not benchmark scores, and ships the fast one — because users abandon the chat if it takes more than 4 seconds to reply.' },
+      expert:       { def:'Owns problem framing, prioritization against a north-star metric, and post-launch causal attribution — separating real model lift from confounds like seasonality or a UI change.', sighting:'Faced with a fine-tuned model (92% eval accuracy, ~4.1s p95 latency) vs. a distilled model (88% accuracy, ~600ms p95), the PM cross-references funnel drop-off against latency buckets, ships the distilled model, and sets a quarterly OKR to close the accuracy gap via retrieval augmentation instead of a bigger base model.' }
+    },
+    program: {
+      layman:       { def:'Makes sure everyone\u2019s puzzle piece arrives on time.', sighting:'A launch needs four different teams to finish their part at the same time — the Program Manager is the person making sure nobody shows up late.' },
+      beginner:     { def:'Keeps several teams that depend on each other lined up so they all hit the same launch date.', sighting:'A new feature needs the data team, the model team, a safety review, and legal sign-off — the Program Manager builds a shared timeline so all four land together.' },
+      intermediate: { def:'Coordinates several teams that each own one piece of a launch no single team can deliver alone — and keeps their deadlines from quietly drifting apart.', sighting:'A new feature needs data labeling, model training, an eval/safety review, and a legal sign-off to all land inside the same six-week window. The Program Manager builds the plan that keeps four different teams — none of whom report to each other — hitting the same date.' },
+      expert:       { def:'Owns the cross-functional critical path, the dependency risk register, and the executive reporting cadence across data, infra, eval, safety, and legal workstreams.', sighting:'For a multi-model GA launch, the Program Manager maintains a RACI across data engineering, applied ML, eval/red-teaming, and legal, tracks the critical path in a live Gantt, and runs a weekly risk review that surfaces schedule risk two sprints before it would otherwise show up.' }
+    },
+    delivery: {
+      layman:       { def:'Makes sure this week\u2019s to-do list actually gets done.', sighting:'In the morning check-in, the Delivery Manager notices the same thing has been stuck for three days — and gets it unstuck before it wrecks the whole week.' },
+      beginner:     { def:'Runs the day-to-day for one team — planning the sprint, clearing blockers, and tracking progress.', sighting:'During standup, the Delivery Manager notices training runs keep getting stuck in a queue — so they flag it immediately instead of letting it eat into the sprint.' },
+      intermediate: { def:'Makes sure one team\u2019s day-to-day work actually gets done — sprint by sprint, blocker by blocker — regardless of what the roadmap says should happen.', sighting:'In daily standup, the Delivery Manager notices the GPU training queue has been the bottleneck three days running. Instead of letting it quietly eat the sprint, they escalate it that morning and re-sequence the team\u2019s work around it.' },
+      expert:       { def:'Owns sprint capacity planning, WIP limits, blocker SLAs, and the velocity/throughput trend that feeds back into program-level forecasting.', sighting:'The Delivery Manager tracks queue-wait time as a sprint health metric, sees GPU queue wait trend from 4h to 14h over three days, re-sequences the sprint board to pull forward CPU-bound eval tasks, and escalates a capacity request to infra with the trend line attached.' }
+    }
+  };
+
+  /* ============ SCENARIOS ============ */
+  const scenarios = [
+    {
+      id:'accuracy', label:'Model accuracy drops 8% in production',
+      title:'The model\u2019s accuracy just dropped 8% in production.',
+      layman:       { product:'Checks if this is actually hurting people, not just the score.', program:'Gets the right people talking to each other, fast.', delivery:'Keeps track of who\u2019s fixing what, so nothing\u2019s forgotten.' },
+      beginner:     { product:'Looks at whether real usage dropped, not just the benchmark number, before deciding to pause the feature.', program:'Pulls in the data, infra, and support teams to work the fix together and sets a timeline.', delivery:'Runs the daily check-in on the fix and makes sure nothing falls through the cracks.' },
+      intermediate: { product:'Checks whether the drop is actually hurting the metric that matters — task completion, not the benchmark score — and decides if it\u2019s bad enough to pause the feature for users.', program:'Pulls data science, infra, and support into one coordinated fix, sets the timeline, and sends the update leadership sees before they ask for it.', delivery:'Runs the war-room standup, tracks every fix task on the board, and makes sure whoever gets paged isn\u2019t secretly still on the hook for other sprint work.' },
+      expert:       { product:'Segments the accuracy drop by cohort and traffic source to rule out data drift versus a bad deploy before triggering a rollback decision.', program:'Opens an incident channel, assigns an incident commander, and tracks time-to-mitigate against the SLA for the post-incident report.', delivery:'Stands up a dedicated swimlane on the board for incident tasks and re-baselines the sprint burndown to exclude incident work from velocity.' }
+    },
+    {
+      id:'legal', label:'Legal review lands out of nowhere',
+      title:'Legal wants a review of the new AI feature — and it wasn\u2019t on anyone\u2019s plan.',
+      layman:       { product:'Decides whether to wait or ship a smaller version now.', program:'Fits the new step into the plan and moves the date.', delivery:'Makes room on the team\u2019s to-do list for the extra work.' },
+      beginner:     { product:'Decides whether to delay the whole launch or ship a limited version to a few users while the review happens.', program:'Adds legal as a new dependency and pushes the launch date back to fit it in.', delivery:'Rearranges the current sprint to make space for whatever compliance work lands on engineering.' },
+      intermediate: { product:'Decides whether to delay the whole launch or ship a limited version to a small audience while the review happens.', program:'Adds legal as a brand-new dependency, replans the cross-team timeline around it, and renegotiates the date with stakeholders.', delivery:'Rearranges the current sprint to make room for whatever compliance work actually lands on the engineering team.' },
+      expert:       { product:'Runs a staged rollout plan (1% \u2192 10% \u2192 100%) so review can happen against real but limited exposure instead of blocking entirely.', program:'Re-sequences the critical path, adds a legal review gate before the GA milestone, and updates the risk register with the new schedule risk.', delivery:'Timeboxes a compliance spike, pulls the resulting tasks into the current sprint, and re-forecasts the sprint\u2019s committed scope accordingly.' }
+    },
+    {
+      id:'when', label:'"When will this ship?" — asked live',
+      title:'A stakeholder asks \u201cwhen will this ship\u201d in front of the whole room.',
+      layman:       { product:'Gives an honest answer with the trade-off attached.', program:'Already knows the real date because they track it.', delivery:'Knows exactly what the team can finish and when.' },
+      beginner:     { product:'Answers with the real trade-off: a smaller model ships sooner, a better one takes longer.', program:'Has a shared timeline ready, so the answer isn\u2019t a guess — it\u2019s based on what every team actually needs.', delivery:'Knows precisely what\u2019s in this sprint versus next, so the date matches what the team can really do.' },
+      intermediate: { product:'Answers with the real tradeoff: \u201cThree weeks with the smaller model, six with the fine-tuned one — here\u2019s what each buys us.\u201d', program:'Has the cross-team dependency map ready, so the six-week number isn\u2019t a guess — it\u2019s backed by exactly who\u2019s waiting on whom.', delivery:'Knows precisely what\u2019s in this sprint versus next, so nobody\u2019s quoting a date the team can\u2019t actually hit.' },
+      expert:       { product:'Presents the date as a range tied to a decision: p50/p90 launch dates against each model option, with the metric impact of each.', program:'Pulls the live critical-path view showing which team\u2019s slip would actually move the date, not just whose task looks late.', delivery:'Cites current velocity and remaining story points to back the date with data, not intuition.' }
+    },
+    {
+      id:'budget', label:'GPU / training budget cut 30%',
+      title:'The GPU and training budget just got cut 30%.',
+      layman:       { product:'Decides what\u2019s still worth doing with less.', program:'Tells every team the new plan has to change.', delivery:'Reorders the team\u2019s work to fit what\u2019s left.' },
+      beginner:     { product:'Reprioritizes which experiments and features are still worth the compute that\u2019s left.', program:'Lets every team know their old plan no longer fits, and rebuilds the shared timeline.', delivery:'Replans the current sprint\u2019s work with the team, based on what compute is actually available.' },
+      intermediate: { product:'Reprioritizes which experiments and features are still worth the compute that\u2019s left.', program:'Renegotiates timelines across every team whose plan assumed the old budget.', delivery:'Replans the current sprint\u2019s experiment queue with the team, in order of what actually needs to run first.' },
+      expert:       { product:'Reruns a cost-per-lift analysis across in-flight experiments and kills anything below the compute-adjusted ROI bar.', program:'Rebuilds the resourcing plan against the new GPU-hour ceiling and flags which milestones now have schedule risk.', delivery:'Re-sequences the sprint by compute cost per task and negotiates a shared queue priority with adjacent teams.' }
+    },
+    {
+      id:'bias', label:'New eval shows bias on a subgroup',
+      title:'A new eval shows the model is biased against a subgroup of users.',
+      layman:       { product:'Decides if this is serious enough to delay the launch.', program:'Gets the right teams working on it together.', delivery:'Gets the fix into the team\u2019s work and tracks it.' },
+      beginner:     { product:'Weighs the harm to users against the cost of delay, and decides if this should block launch.', program:'Brings in the fairness/safety team, legal, and engineering to work one coordinated fix.', delivery:'Adds the fix to the sprint and makes sure it gets done, not just planned.' },
+      intermediate: { product:'Weighs the harm to users against the cost of delay, and decides whether this blocks launch.', program:'Pulls in the fairness/safety team, legal, and engineering on one coordinated fix-and-comms plan.', delivery:'Gets the fix broken into tasks, slots them into the next sprint, and tracks them until they\u2019re actually done.' },
+      expert:       { product:'Quantifies harm by subgroup impact size and decides the launch gate against a pre-agreed fairness threshold, not gut feel.', program:'Coordinates a red-team review, legal sign-off, and comms plan on parallel tracks with a shared go/no-go date.', delivery:'Adds a regression test for the subgroup to the eval harness so the fix is verifiably closed, not just merged.' }
+    },
+    {
+      id:'viral', label:'A bad AI answer goes viral',
+      title:'A user\u2019s screenshot of a bad AI answer goes viral on social media.',
+      layman:       { product:'Figures out if it\u2019s a one-off or a real problem.', program:'Makes sure support, comms, and engineers say the same thing.', delivery:'Gets the fix moving on the team\u2019s board today.' },
+      beginner:     { product:'Checks whether this is a one-off or a real pattern before deciding whether to change how the model responds.', program:'Coordinates support, comms, and engineering so everyone\u2019s giving the same answer publicly.', delivery:'Adds the fix to the sprint and makes sure it doesn\u2019t get lost behind other work.' },
+      intermediate: { product:'Determines whether this is an isolated bad response or a real pattern in the data, and decides if it\u2019s bad enough to change how the model responds.', program:'Coordinates support, comms, and engineering on a single response — so the company isn\u2019t contradicting itself in public while a fix is in progress.', delivery:'Gets the fix prioritized into the current sprint ahead of lower-priority work, without derailing everything else the team committed to.' },
+      expert:       { product:'Pulls the query into the eval set as a new regression case, checks failure rate across similar queries in production logs, and decides between a guardrail patch and a model fix.', program:'Stands up a cross-functional bridge with comms, legal, and eng, and manages parallel timelines for a public statement and the underlying fix.', delivery:'Re-prioritizes the backlog, timeboxes a same-day patch, and tracks its cycle time separately from planned sprint work.' }
+    }
+  ];
+
+  const picker = document.getElementById('scenarioPicker');
+  const desks = document.getElementById('desks');
+  const scenarioTitle = document.getElementById('scenarioTitle');
+  let activeScenario = scenarios[0];
+
+  function renderScenario(s){
+    activeScenario = s;
+    scenarioTitle.textContent = s.title;
+    const c = s[currentLevel];
+    desks.innerHTML = `
+      <div class="desk"><div class="desk-role"><span class="dot product"></span><span>Product</span></div><p>${c.product}</p></div>
+      <div class="desk"><div class="desk-role"><span class="dot program"></span><span>Program</span></div><p>${c.program}</p></div>
+      <div class="desk"><div class="desk-role"><span class="dot delivery"></span><span>Delivery</span></div><p>${c.delivery}</p></div>
+    `;
+  }
+
+  scenarios.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'scenario-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = s.label;
+    btn.addEventListener('click', () => {
+      picker.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderScenario(s);
+    });
+    picker.appendChild(btn);
+  });
+
+  /* ============ JARGON DECODER ============ */
+  const terms = [
+    {term:'PRD (Product Requirements Doc)', owner:'product', layman:'The write-up of what\u2019s being built and why, before anyone builds it.', meaning:'The document that says what\u2019s being built, for whom, and why — before anyone writes code.', expert:'Living doc tying scope to the north-star metric and explicit non-goals, versioned alongside the eval plan.', example:'"The PRD says this only needs to handle English for launch."'},
+    {term:'North Star Metric', owner:'product', layman:'The one number that tells you if the product is actually working.', meaning:'The one number the team checks to know if the product is actually helping users.', expert:'A single metric chosen to be causally close to user value, guarded against being gamed by proxy optimization.', example:'"Our north star is task completion rate, not model accuracy."'},
+    {term:'Model card', owner:'product', layman:'A simple label explaining what the AI is good and bad at.', meaning:'A short, plain-language summary of what a model does well, where it fails, and what it was trained on.', expert:'Structured documentation covering training data provenance, intended use, known failure modes, and eval benchmarks per subgroup.', example:'"Add a note to the model card that it underperforms on short queries."'},
+    {term:'Go / no-go', owner:'product', layman:'The final "yes, launch it" or "no, not yet" call.', meaning:'The decision point where someone decides whether a launch actually happens on schedule.', expert:'A pre-agreed decision gate scored against explicit launch criteria (eval thresholds, fairness bar, latency SLA), not a vibe check.', example:'"We\u2019re not go until the eval numbers clear the bar."'},
+    {term:'MVP (Minimum Viable Product)', owner:'product', layman:'The smallest version worth actually shipping.', meaning:'The simplest version of a feature that\u2019s still useful enough to learn from real users.', expert:'The smallest slice that lets you test the riskiest assumption in the model or the UX with real usage data.', example:'"The MVP just answers billing questions — we\u2019ll add more topics later."'},
+    {term:'OKR (Objectives & Key Results)', owner:'product', layman:'A goal, plus the numbers that prove you hit it.', meaning:'A goal statement paired with a few measurable results that show whether it was achieved.', expert:'A quarterly goal-setting framework cascading team-level key results up to a company north star, reviewed for grading rigor.', example:'"Our Q3 OKR is cutting response time in half, measured by p95 latency."'},
+    {term:'RACI', owner:'program', layman:'A list of who decides, who\u2019s asked, and who\u2019s just told.', meaning:'A chart naming who\u2019s Responsible, Accountable, Consulted, and Informed for each decision — so nobody assumes someone else has it.', expert:'A responsibility matrix used to resolve ambiguity across matrixed orgs before conflicts surface in a steering committee.', example:'"Check the RACI — legal is Consulted here, not Accountable."'},
+    {term:'Critical path', owner:'program', layman:'The one chain of tasks that decides the whole finish date.', meaning:'The one chain of tasks that, if any of them slip, the whole launch date slips too.', expert:'The longest dependency chain through the project network; slack on any other path doesn\u2019t protect the delivery date.', example:'"Data labeling is on the critical path — everything else can flex around it."'},
+    {term:'Dependency map', owner:'program', layman:'A picture of which team is waiting on which other team.', meaning:'A picture of which teams are waiting on which other teams before they can move.', expert:'A directed graph of cross-team handoffs used to identify single points of failure before they become blockers.', example:'"The dependency map shows eng can\u2019t start until data science ships the pipeline."'},
+    {term:'Steering committee', owner:'program', layman:'The meeting where the bosses unblock the big stuff.', meaning:'The recurring meeting where leadership across teams checks progress and unblocks big decisions.', expert:'A cross-functional leadership forum with authority to reallocate resources or shift scope when program-level risk can\u2019t be resolved lower down.', example:'"Escalate the compute shortage to steering committee this week."'},
+    {term:'Risk register', owner:'program', layman:'A running list of things that could go wrong, and the plan if they do.', meaning:'A tracked list of things that might derail the timeline, each with a likelihood, an impact, and an owner.', expert:'A living log scored on likelihood \u00d7 impact, reviewed on a cadence, with each item carrying a named mitigation owner.', example:'"GPU shortage is top of the risk register this sprint."'},
+    {term:'Stakeholder alignment', owner:'program', layman:'Getting everyone who cares about this to agree on the plan.', meaning:'Making sure everyone with a stake in the outcome agrees on the plan before work starts, not after.', expert:'The process of surfacing and resolving conflicting incentives across functions before they show up as late-stage scope disputes.', example:'"We need stakeholder alignment before we commit to the date publicly."'},
+    {term:'Sprint / Iteration', owner:'delivery', layman:'A short block of time — usually one or two weeks — for a set list of work.', meaning:'A fixed short block of time — usually one to two weeks — a team commits to a specific set of work.', expert:'A timeboxed commitment used to bound scope and create a regular cadence for planning, review, and retrospection.', example:'"That\u2019s not in this sprint, it\u2019ll go into the next one."'},
+    {term:'Burndown chart', owner:'delivery', layman:'A chart showing how much work is left before time runs out.', meaning:'A simple chart showing how much sprint work is left versus how much time is left to do it.', expert:'A remaining-work-vs-time chart used to spot scope creep or under-estimation days before the sprint review, not at it.', example:'"Burndown\u2019s flat — we\u2019re not going to finish the sprint."'},
+    {term:'Backlog grooming', owner:'delivery', layman:'Tidying up the to-do list so it\u2019s ready to work on.', meaning:'Regularly reviewing and reordering the list of upcoming work so the top of it is always ready to start.', expert:'Recurring refinement to keep the top of the backlog estimated, de-risked, and ready to pull into the next sprint.', example:'"Let\u2019s groom the backlog before Monday\u2019s planning."'},
+    {term:'Retro (retrospective)', owner:'delivery', layman:'A quick "what went well, what didn\u2019t" chat after each sprint.', meaning:'A short meeting after each sprint asking what went well, what didn\u2019t, and what to change next time.', expert:'A structured continuous-improvement ritual producing concrete action items with owners, tracked into the next sprint.', example:'"We flagged the GPU queue delay in retro — that\u2019s why it got escalated."'},
+    {term:'WIP limit', owner:'delivery', layman:'A cap on how many things the team works on at once.', meaning:'A rule capping how many tasks can be "in progress" at the same time, so things actually finish instead of piling up.', expert:'A Kanban constraint that surfaces bottlenecks by forcing explicit prioritization instead of hidden multitasking.', example:'"We hit the WIP limit — finish something before you start something new."'},
+    {term:'Velocity', owner:'delivery', layman:'How much work a team typically gets done per sprint.', meaning:'A rough measure of how much work a team usually completes in a sprint, used to plan future sprints.', expert:'A trailing average of completed story points used for capacity forecasting — noisy at the team level, more reliable trended over quarters.', example:'"Velocity\u2019s been steady at 30 points, so 40 points next sprint is a stretch."'},
+    {term:'Eval harness', owner:'shared', layman:'An automatic test that checks if the AI\u2019s answers are good.', meaning:'The automated tests that score a model\u2019s outputs against known-good answers before it ships.', expert:'A test suite scoring outputs against labeled ground truth (exact-match, BLEU, LLM-judge, etc.), gating merges via CI.', example:'"The eval harness caught the regression before it hit production."'},
+    {term:'Fine-tuning', owner:'shared', layman:'Extra training that makes an existing AI better at one specific job.', meaning:'Further training an existing model on specific data so it gets better at a narrower task.', expert:'Continued training (full or parameter-efficient, e.g. LoRA) on a task-specific dataset to shift the base model\u2019s output distribution.', example:'"Fine-tuning on support tickets cut wrong answers in half."'},
+    {term:'RAG (Retrieval-Augmented Generation)', owner:'shared', layman:'Having the AI look things up before answering, instead of just guessing from memory.', meaning:'Having the model look up real documents before answering, instead of relying only on what it memorized in training.', expert:'A pipeline that retrieves relevant chunks from a vector store and injects them into the prompt context before generation.', example:'"RAG means it quotes our actual docs instead of guessing."'},
+    {term:'GA (General Availability)', owner:'shared', layman:'The point when everyone can use it, not just a test group.', meaning:'The point when a feature is released to everyone, not just a limited test group.', expert:'The rollout milestone following successful staged/canary release, typically gated on SLA and eval thresholds holding at scale.', example:'"We\u2019re in limited beta now, GA is targeted for next quarter."'},
+    {term:'Guardrails', owner:'shared', layman:'Rules that stop the AI from saying something unsafe or off-topic.', meaning:'Rules and filters that stop a model from producing unsafe, off-topic, or unwanted output.', expert:'Input/output filtering layers (classifiers, regex, policy prompts) enforcing safety and scope boundaries independent of the base model.', example:'"Add a guardrail so it won\u2019t give medical advice."'},
+    {term:'Ground truth', owner:'shared', layman:'The verified correct answers used to check the AI\u2019s work.', meaning:'The verified, correct answers used to check whether a model\u2019s outputs are actually right.', expert:'Human- or expert-labeled reference data used as the scoring baseline for both training and evaluation.', example:'"We need more labeled ground truth before we can trust this eval."'},
+    {term:'Hallucination', owner:'shared', layman:'When the AI confidently makes something up that isn\u2019t true.', meaning:'When a model states something false or made-up as if it were fact.', expert:'Ungrounded generation not supported by training data or retrieved context — tracked as a specific eval failure category.', example:'"That citation was a hallucination — the paper doesn\u2019t exist."'},
+    {term:'Latency (p95)', owner:'shared', layman:'How long people usually wait for an answer, at the slower end.', meaning:'How long a response takes — p95 means 95% of responses are at least this fast.', expert:'The 95th-percentile response time, used over the average because it captures the slow tail that actually drives user drop-off.', example:'"p95 latency needs to stay under 2 seconds or users bail."'},
+    {term:'Data drift', owner:'shared', layman:'When real-world data slowly stops matching what the AI was trained on.', meaning:'When the data the model sees in the real world gradually differs from what it was trained on, quietly hurting accuracy.', expert:'A shift in input or label distribution over time that silently degrades model performance without a code change to blame.', example:'"Accuracy didn\u2019t drop from a bad deploy — it\u2019s data drift from a new user segment."'},
+    {term:'Canary release', owner:'shared', layman:'Testing a change on a small slice of users before rolling it out to everyone.', meaning:'Releasing a change to a small percentage of users first, to catch problems before they hit everyone.', expert:'A staged rollout (e.g. 1% \u2192 10% \u2192 100%) with automated rollback triggers tied to eval and error-rate thresholds.', example:'"Ship it as a canary to 5% of traffic first."'},
+    {term:'Technical debt', owner:'shared', layman:'Shortcuts taken now that will cost extra time to fix later.', meaning:'Work that was done quickly to save time now, which will need to be redone properly later.', expert:'Accumulated design or implementation shortcuts that increase the marginal cost of future changes until deliberately paid down.', example:'"That hard-coded prompt is technical debt — it\u2019ll break the next model swap."'},
+    {term:'LLM (Large Language Model)', owner:'shared', layman:'The type of AI that reads and writes text, like the one behind most chatbots today.', meaning:'A model trained on huge amounts of text that can understand and generate human-like language.', expert:'A transformer-based model with billions of parameters trained via next-token prediction on large corpora, then typically fine-tuned or aligned.', example:'"We\u2019re evaluating three LLMs before picking one for the assistant."'},
+    {term:'Foundation model', owner:'shared', layman:'A big general-purpose AI that other, more specific tools get built on top of.', meaning:'A large model trained on broad data that can be adapted to many different tasks instead of just one.', expert:'A pretrained, general-purpose base model intended for downstream fine-tuning, RAG, or prompting across multiple use cases.', example:'"We\u2019re building on a foundation model instead of training from scratch."'},
+    {term:'Token / Tokenization', owner:'shared', layman:'The small chunks of text an AI actually reads and writes, not whole words.', meaning:'Text gets broken into small pieces called tokens — often part of a word — which is how the model actually processes language.', expert:'The model\u2019s base processing unit (sub-word units via BPE or similar); pricing, context limits, and latency are all measured in tokens.', example:'"That prompt is 3,000 tokens — most of our budget for one request."'},
+    {term:'Context window', owner:'shared', layman:'How much text the AI can \u201cremember\u201d and look at at once.', meaning:'The maximum amount of text — instructions, conversation, documents — a model can consider at one time when generating a response.', expert:'The token limit for a single forward pass, bounding how much prior conversation or retrieved context fits in one prompt.', example:'"The document\u2019s too long — it won\u2019t fit in the context window."'},
+    {term:'Embeddings', owner:'shared', layman:'A way of turning text into numbers so a computer can tell how similar two pieces of text are.', meaning:'A numeric representation of text or images that captures meaning, so similar things end up with similar numbers.', expert:'Dense vector representations from an encoder, used for similarity search, clustering, and retrieval via metrics like cosine similarity.', example:'"We embed each support article so search can find similar ones."'},
+    {term:'Vector database', owner:'shared', layman:'A search tool built to find \u201csimilar meaning\u201d text instead of exact keyword matches.', meaning:'A database built to store and quickly search those number-based text representations, so you can find similar content fast.', expert:'A datastore optimized for approximate nearest-neighbor search over high-dimensional embeddings — core infrastructure for RAG.', example:'"We\u2019re indexing the docs into a vector database for the RAG pipeline."'},
+    {term:'Prompt engineering', owner:'product', layman:'Carefully wording your instructions to the AI so it gives a better answer.', meaning:'The practice of writing and refining instructions to a model to get more accurate, consistent output.', expert:'Systematic iteration on prompt structure, few-shot examples, and constraints, paired with automated eval to measure improvement.', example:'"A round of prompt engineering cut wrong answers by 15%."'},
+    {term:'Temperature', owner:'shared', layman:'A setting that controls how \u201csafe and predictable\u201d vs. \u201ccreative and random\u201d the AI\u2019s answers are.', meaning:'A setting that controls how random or predictable the model\u2019s output is — low is more consistent, high is more varied.', expert:'A parameter scaling the probability distribution over next-token candidates before sampling; near zero approximates greedy decoding.', example:'"We run support answers at low temperature so they stay consistent."'},
+    {term:'Zero-shot / Few-shot', owner:'shared', layman:'Asking the AI to do something with no examples, or with a couple of examples to guide it.', meaning:'Zero-shot means asking the model to do a task with no examples; few-shot means giving it a few examples first to guide its answer.', expert:'In-context learning strategies where task examples — or none — are included directly in the prompt, without updating model weights.', example:'"Few-shot examples in the prompt fixed the formatting issue."'},
+    {term:'Overfitting', owner:'shared', layman:'When an AI memorizes the practice questions instead of actually learning the subject.', meaning:'When a model performs great on the data it was trained on but poorly on new, real-world data because it memorized instead of learned.', expert:'Low training loss paired with high validation error, typically addressed via regularization, more data, or early stopping.', example:'"It aces our test set but flops in production — classic overfitting."'},
+    {term:'RLHF (Reinforcement Learning from Human Feedback)', owner:'shared', layman:'Training the AI by having humans rate its answers, so it learns what people actually prefer.', meaning:'A training method where humans rank or rate model outputs, and the model is adjusted to produce more of what people preferred.', expert:'A post-training alignment technique using a learned reward model from human preference data to fine-tune the base model via reinforcement learning.', example:'"RLHF is why the model got noticeably more polite and on-topic."'},
+    {term:'AI agent', owner:'product', layman:'An AI that can take multi-step actions on its own, not just answer one question.', meaning:'An AI system that can plan a sequence of steps and take actions — like calling tools or searching the web — to complete a task, not just reply once.', expert:'A model wrapped with tool-calling, planning/looping logic, and often memory, enabling multi-step autonomous task execution.', example:'"The agent booked the meeting itself after checking three calendars."'},
+    {term:'Inference', owner:'shared', layman:'Actually running the AI to get an answer, as opposed to training it.', meaning:'The step where a trained model is used to generate an answer for a real request, rather than being trained.', expert:'The forward-pass compute cost of serving a live request, distinct from training compute and optimized separately for latency and cost.', example:'"Training happens once, inference happens every time a user sends a message."'},
+    {term:'Multimodal', owner:'shared', layman:'An AI that can handle more than just text — like images, audio, or video too.', meaning:'A model that can take in and/or produce more than one type of content, like text and images together.', expert:'A model architecture trained on multiple input/output modalities, often via a shared embedding space across encoders.', example:'"The multimodal model can read the screenshot and answer questions about it."'},
+    {term:'Parameters (model size)', owner:'shared', layman:'A rough measure of how \u201cbig\u201d or complex an AI model is.', meaning:'The internal values a model learns during training; more parameters generally means more capacity, but also more cost.', expert:'The learned weights of the network; parameter count is a proxy for capacity and compute cost, not accuracy by itself.', example:'"It\u2019s a 70-billion-parameter model — bigger, but slower and pricier to run."'},
+    {term:'System prompt', owner:'product', layman:'The hidden instructions the company gives the AI before the user ever types anything.', meaning:'A set of instructions given to the model behind the scenes that shapes how it behaves, before the user\u2019s own message.', expert:'A privileged instruction block prepended to every request, used to set persona, constraints, and safety behavior ahead of user input.', example:'"We updated the system prompt so it always cites its sources."'},
+    {term:'Function calling / Tool use', owner:'shared', layman:'Letting the AI actually use outside tools, like checking a calendar or running a search, instead of just talking.', meaning:'A way for the model to call external tools or APIs — like a calculator, a database, or a search engine — as part of answering.', expert:'A structured interface where the model emits a typed call (name plus arguments) that the host app executes, feeding the result back into context.', example:'"Function calling is how it actually books the meeting, not just describes how to."'},
+    {term:'Chain-of-thought', owner:'shared', layman:'Having the AI show its step-by-step reasoning instead of jumping straight to an answer.', meaning:'Prompting or training a model to reason through steps before giving a final answer, which often makes the answer more accurate.', expert:'Intermediate reasoning tokens generated before the final answer, improving multi-step task performance at the cost of latency and tokens.', example:'"Chain-of-thought fixed the math errors it kept making."'},
+    {term:'Distillation', owner:'shared', layman:'Training a smaller, cheaper AI to copy the behavior of a bigger, more expensive one.', meaning:'Training a smaller model to mimic a larger one\u2019s outputs, aiming to keep most of the quality at a fraction of the cost.', expert:'A compression technique where a student model trains on a teacher model\u2019s outputs (or logits) to approximate its behavior at lower inference cost.', example:'"We distilled the big model down to something that runs on-device."'},
+    {term:'Synthetic data', owner:'shared', layman:'Training data that was generated by AI instead of collected from real people.', meaning:'Data created by a model instead of collected from the real world, used to fill gaps in training or eval data.', expert:'Model-generated examples used to augment scarce or sensitive training/eval data, with quality risk if it reinforces the generating model\u2019s own biases.', example:'"We used synthetic data to cover edge cases we don\u2019t see often in real traffic."'},
+    {term:'Benchmark', owner:'shared', layman:'A standard test used to compare how good different AI models are.', meaning:'A standardized set of tasks or questions used to compare models against each other on a level playing field.', expert:'A fixed eval suite (e.g. MMLU, HumanEval) enabling apples-to-apples comparison, though prone to gaming or data contamination.', example:'"It tops the benchmark, but that doesn\u2019t mean it\u2019s better for our use case."'},
+    {term:'Grounding', owner:'product', layman:'Making sure the AI\u2019s answer is actually backed by real, verified information.', meaning:'Tying a model\u2019s answer to real, verifiable source material instead of letting it rely purely on what it memorized.', expert:'Constraining generation to be traceable to retrieved or provided source data, reducing hallucination risk.', example:'"Grounding it in our docs cut hallucinated answers way down."'},
+    {term:'Prompt injection', owner:'shared', layman:'A trick where hidden text tries to secretly hijack what the AI does.', meaning:'An attack where hidden or malicious instructions are slipped into content the model reads, trying to make it ignore its real instructions.', expert:'An adversarial input embedded in retrieved content or user input designed to override the system prompt or exfiltrate data; mitigated via guardrails and input isolation.', example:'"The doc had a hidden prompt injection trying to get it to leak the system prompt."'},
+    {term:'Reasoning model', owner:'shared', layman:'A newer kind of AI built to \u201cthink longer\u201d before answering hard problems.', meaning:'A model specifically designed to spend extra steps reasoning through a hard problem before answering — usually slower but more accurate on complex tasks.', expert:'A model trained, often via RL, to generate extended internal reasoning traces before a final answer, trading latency and cost for accuracy on complex tasks.', example:'"We route the hard support tickets to the reasoning model, not the fast one."'}
+  ];
+
+  const termGrid = document.getElementById('termGrid');
+  const noResults = document.getElementById('noResults');
+  const termCount = document.getElementById('termCount');
+  const searchInput = document.getElementById('search');
+  const fchips = Array.from(document.querySelectorAll('.fchip'));
+  let activeFilter = 'all';
+
+  function ownerLabel(o){
+    return {product:'Product', program:'Program', delivery:'Delivery', shared:'Shared'}[o];
+  }
+
+  function renderTerms(){
+    const q = searchInput.value.trim().toLowerCase();
+    termGrid.innerHTML = '';
+    let shown = 0;
+    terms.forEach(t => {
+      const matchesFilter = activeFilter === 'all' || t.owner === activeFilter;
+      const matchesSearch = !q || t.term.toLowerCase().includes(q) || t.meaning.toLowerCase().includes(q);
+      if(matchesFilter && matchesSearch){
+        shown++;
+        const card = document.createElement('div');
+        card.className = 'term-card';
+        card.setAttribute('data-owner', t.owner);
+        const bodyText = currentLevel === 'layman' ? t.layman : t.meaning;
+        const expertLine = currentLevel === 'expert' ? `<p class="term-expert">${t.expert}</p>` : '';
+        card.innerHTML = `
+          <div class="term-top"><h5>${t.term}</h5><span class="owner-tag">${ownerLabel(t.owner)}</span></div>
+          <p class="term-meaning">${bodyText}</p>
+          ${expertLine}
+          <p class="term-example">${t.example}</p>
+        `;
+        termGrid.appendChild(card);
+      }
+    });
+    noResults.style.display = shown === 0 ? 'block' : 'none';
+    termCount.textContent = shown + ' of ' + terms.length + ' terms';
+  }
+
+  fchips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      fchips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeFilter = chip.getAttribute('data-f');
+      renderTerms();
+    });
+  });
+  searchInput.addEventListener('input', renderTerms);
+
+  /* ============ COMPARE TABLE ============ */
+  const rows = [
+    ['Core question', 'Should we build this — and is it working?', 'Are all the teams moving toward the same date?', 'Will this team finish what\u2019s in front of them this sprint?'],
+    ['Time horizon', 'Quarters to years', 'Weeks to a quarter', 'Days to weeks'],
+    ['Success looks like', 'Users adopt it and the metric moves', 'Every team lands on the date, nothing surprises leadership', 'The sprint goal is hit, nobody\u2019s blocked'],
+    ['Fails when', 'Ships the wrong thing, really well', 'Every team hits its own deadline but the pieces don\u2019t fit', 'Team looks "busy" but the backlog never actually clears'],
+    ['Common background', 'Ex-engineer, designer, or domain expert with strong user instincts', 'Ex-delivery manager or ops lead, good at spreadsheets and diplomacy', 'Ex-engineer or scrum master, close to the day-to-day work'],
+    ['Typical artifact', 'PRD, roadmap, metrics dashboard', 'RACI chart, dependency map, status deck', 'Sprint board, burndown chart, standup notes'],
+    ['Good day-to-day looks like', 'Says no to good ideas that don\u2019t fit the strategy', 'Surfaces a risk two weeks before it becomes a fire drill', 'Sprint commitments are boring and predictable — no surprises'],
+    ['What burns trust', 'Chases every trend without a clear metric behind it', 'Only communicates when something\u2019s already broken', 'Says yes to every ask, then everything slips at once']
+  ];
+  const compareBody = document.getElementById('compareBody');
+  rows.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td>`;
+    compareBody.appendChild(tr);
+  });
+
+  /* ============ GLOSSARY (A–Z, layman + technical together) ============ */
+  const glossaryList = document.getElementById('glossaryList');
+  const glossaryNoResults = document.getElementById('glossaryNoResults');
+  const glossaryCount = document.getElementById('glossaryCount');
+  const glossarySearch = document.getElementById('glossarySearch');
+  const glossaryChips = Array.from(document.querySelectorAll('#glossaryChips .fchip'));
+  let glossaryFilter = 'all';
+
+  // Strip parenthetical/slash extras so terms sort by their primary name
+  function sortKey(term){
+    return term.replace(/\(.*?\)/g, '').split('/')[0].trim().toLowerCase();
+  }
+  const sortedTerms = [...terms].sort((a, b) => sortKey(a.term).localeCompare(sortKey(b.term)));
+
+  function renderGlossary(){
+    const q = glossarySearch.value.trim().toLowerCase();
+    glossaryList.innerHTML = '';
+    let shown = 0;
+    let lastLetter = '';
+    sortedTerms.forEach(t => {
+      const matchesFilter = glossaryFilter === 'all' || t.owner === glossaryFilter;
+      const matchesSearch = !q || t.term.toLowerCase().includes(q) || t.meaning.toLowerCase().includes(q) || t.expert.toLowerCase().includes(q);
+      if(!(matchesFilter && matchesSearch)) return;
+      shown++;
+      const letter = sortKey(t.term).charAt(0).toUpperCase();
+      if(letter !== lastLetter){
+        lastLetter = letter;
+        const h = document.createElement('div');
+        h.className = 'glossary-letter';
+        h.textContent = letter;
+        glossaryList.appendChild(h);
+      }
+      const entry = document.createElement('div');
+      entry.className = 'glossary-entry';
+      entry.setAttribute('data-owner', t.owner);
+      entry.innerHTML = `
+        <div class="glossary-top">
+          <h5>${t.term}</h5>
+          <span class="glossary-owner">${ownerLabel(t.owner)}</span>
+        </div>
+        <div class="glossary-defs">
+          <div>
+            <div class="glossary-def-label">Layman</div>
+            <p class="glossary-def-text">${t.layman}</p>
+          </div>
+          <div>
+            <div class="glossary-def-label">Technical</div>
+            <p class="glossary-def-text technical">${t.expert}</p>
+          </div>
+        </div>
+      `;
+      glossaryList.appendChild(entry);
+    });
+    glossaryNoResults.style.display = shown === 0 ? 'block' : 'none';
+    glossaryCount.textContent = shown + ' of ' + sortedTerms.length + ' terms';
+  }
+
+  glossaryChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      glossaryChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      glossaryFilter = chip.getAttribute('data-f');
+      renderGlossary();
+    });
+  });
+  glossarySearch.addEventListener('input', renderGlossary);
+  renderGlossary();
+
+  /* ============ LEVEL SWITCHER WIRING ============
+  const levelSwitcher = document.getElementById('levelSwitcher');
+  const levelDesc = document.getElementById('levelDesc');
+  const levelCount = document.getElementById('levelCount');
+  const navLevel = document.getElementById('navLevel');
+  levelCount.textContent = '4 depths available';
+
+  function applyLevel(level){
+    currentLevel = level;
+    // role cards
+    Object.keys(roleContent).forEach(role => {
+      document.getElementById('def-' + role).textContent = roleContent[role][level].def;
+      document.getElementById('sighting-' + role).textContent = roleContent[role][level].sighting;
+    });
+    // scenario
+    renderScenario(activeScenario);
+    // decoder
+    renderTerms();
+    // switcher UI
+    Array.from(levelSwitcher.children).forEach(b => b.classList.toggle('active', b.dataset.level === level));
+    Array.from(navLevel.children).forEach(b => b.classList.toggle('active', b.dataset.level === level));
+    levelDesc.textContent = levelMeta[level].desc;
+  }
+
+  levelOrder.forEach(level => {
+    const btn = document.createElement('button');
+    btn.className = 'level-btn';
+    btn.textContent = levelMeta[level].label;
+    btn.dataset.level = level;
+    btn.addEventListener('click', () => applyLevel(level));
+    levelSwitcher.appendChild(btn);
+
+    const navBtn = document.createElement('button');
+    navBtn.className = 'nav-level-btn';
+    navBtn.textContent = levelMeta[level].label[0];
+    navBtn.title = levelMeta[level].label;
+    navBtn.dataset.level = level;
+    navBtn.addEventListener('click', () => applyLevel(level));
+    navLevel.appendChild(navBtn);
+  });
+
+  applyLevel(currentLevel);
+
+  /* ============ NAV BEHAVIOR ============ */
+  const navtoggle = document.getElementById('navtoggle');
+  const navlinks = document.getElementById('navlinks');
+  navtoggle.addEventListener('click', () => {
+    const open = navlinks.classList.toggle('open');
+    navtoggle.setAttribute('aria-expanded', open);
+  });
+  navlinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navlinks.classList.remove('open')));
+
+  const sections = ['top','meet','scenario','failure','decoder','compare','glossary'].map(id => document.getElementById(id));
+  const navA = Array.from(navlinks.querySelectorAll('a'));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        const id = '#' + e.target.id;
+        navA.forEach(a => a.classList.toggle('active', a.getAttribute('href') === id));
+      }
+    });
+  }, { rootMargin: '-40% 0px -50% 0px' });
+  sections.forEach(s => io.observe(s));
+</script>
+</body>
+</html>
